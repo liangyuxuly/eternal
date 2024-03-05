@@ -338,19 +338,19 @@ namespace eternal {
 namespace impl {
 
 // Use different constants for 32 bit vs. 64 bit size_t
-constexpr std::size_t hash_offset =
+constexpr unsigned long long hash_offset =
+    std::conditional_t<sizeof(unsigned long long) < 8,
+                       std::integral_constant<unsigned long long, 0x811C9DC5>,
+                       std::integral_constant<unsigned long long, 0xCBF29CE484222325>>::value;
+constexpr unsigned long long hash_prime =
     std::conditional_t<sizeof(std::size_t) < 8,
-                       std::integral_constant<std::size_t, 0x811C9DC5>,
-                       std::integral_constant<std::size_t, 0xCBF29CE484222325>>::value;
-constexpr std::size_t hash_prime =
-    std::conditional_t<sizeof(std::size_t) < 8,
-                       std::integral_constant<std::size_t, 0x1000193>,
-                       std::integral_constant<std::size_t, 0x100000001B3>>::value;
+                       std::integral_constant<unsigned long long, 0x1000193>,
+                       std::integral_constant<unsigned long long, 0x100000001B3>>::value;
 
 // FNV-1a hash
-constexpr static std::size_t str_hash(const char* str,
-                                      const std::size_t value = hash_offset) noexcept {
-    return *str ? str_hash(str + 1, (value ^ static_cast<std::size_t>(*str)) * hash_prime) : value;
+constexpr static unsigned long long str_hash(const char* str,
+                                      const unsigned long long value = hash_offset) noexcept {
+    return *str ? str_hash(str + 1, (value ^ static_cast<unsigned long long>(*str)) * hash_prime) : value;
 }
 
 constexpr bool str_less(const char* lhs, const char* rhs) noexcept {
